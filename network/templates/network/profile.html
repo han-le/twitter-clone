@@ -1,0 +1,44 @@
+{% extends 'network/layout.html' %}
+{% load static %}
+{% block body %}
+    <h1>Profile</h1>
+    <h3>Username: {{ profile.user.username }}</h3>
+    <h6>Bio: {{ profile.bio }}</h6>
+    <h4>Following: {{ profile.all_following.all.count }} </h4>
+    <h4>Follower: {{ profile.all_followers.all.count }}</h4>
+
+    {% if request.user.is_authenticated %}
+        <div id="follow-btn-wrap">
+            {% if request.user != profile.user and follow_status == False %}
+                <button id="follow-btn" class="btn btn-warning">Follow</button>
+            {% elif follow_status == True %}
+                <button id="follow-btn" class="btn btn-secondary">Unfollow</button>
+            {% endif %}
+        </div>
+    {% else %}
+        <a href="{% url 'login' %}">Log in to follow</a>
+    {% endif %}
+
+    <div class="container">
+        {% for post in created_posts %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <a href="{% url 'profile' post.author.user.username %}"> {{ post.author.user.username }} </a>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title"> {{ post.content }} </h5>
+                    <p class="card-text"> Posted on {{ post.created_on }} </p>
+                    <span> {{ post.likes.all.count }} </span>
+                    <a href="#" class="btn btn-primary"> Like </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        let current_profile_id =
+        {{ profile.id }}
+    </script>
+    {% csrf_token %}
+    <script src="{% static 'network/profile.js' %}"></script>
+{% endblock %}
