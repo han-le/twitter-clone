@@ -13,6 +13,10 @@ from .models import User, Post, Follow, Profile, Like
 
 
 def index(request):
+    # SELECT network_post.*, network_like.id
+    # FROM network_post
+    # left join network_like
+    # on network_post.id = network_like.on_post_id
     posts = Post.objects.all()
     posts = paginate(request, posts, 10)
     return render(request, "network/index.html", {'posts': posts})

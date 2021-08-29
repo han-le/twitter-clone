@@ -29,7 +29,7 @@
                         <!-- Like button -->
                         {% if request.user.is_authenticated %}
                             <!-- Check if this user has liked this post -->
-
+                            {% if post.post_likes.filter:owner=request.user %}
                             <div id="test"></div>
                             <div style="cursor: pointer" class="submit-like gray"
                                  onclick="like('{{ post.id }}')">

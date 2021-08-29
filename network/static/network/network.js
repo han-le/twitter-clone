@@ -5,8 +5,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (postForm !== null) {
         postForm.addEventListener('keyup', toggleSubmit)
     }
-
-
 })
 
 
