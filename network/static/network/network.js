@@ -69,7 +69,19 @@ const getLike = (post_id) => {
     fetch(url)
         .then(response => response.json())
         .then(data => {
+
+            // Update the like count
             let likeCountDivId = 'like-' + post_id;
             document.getElementById(likeCountDivId).innerHTML = data.likes;
+
+            // Change the color of the heart
+            let hearColorDivId = 'heart-color-' + post_id;
+            let heartColorDiv = document.getElementById(hearColorDivId);
+            let heartColor = heartColorDiv.className;
+            if (heartColor === 'gray') {
+                heartColorDiv.className = 'red';
+            } else if (heartColor === 'red') {
+                heartColorDiv.className = 'gray';
+            }
         })
 }
