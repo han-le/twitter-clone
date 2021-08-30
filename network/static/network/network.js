@@ -53,10 +53,8 @@ const like = (post_id) => {
         method: 'POST',
         mode: 'same-origin',
     }).then(function (response) {
-        console.log('Function like running 1')
         response.json().then(result => {
             console.log(result)})
-            console.log('Function like running 2')
     }).then(() => {
         // Reload the component
         getLike(post_id)

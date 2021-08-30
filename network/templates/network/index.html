@@ -17,6 +17,7 @@
 
     <div class="container">
         {% for post in posts %}
+
             <div class="card mb-3">
                 <div class="card-header">
                     <a href="{% url 'profile' post.author.user.username %}"> {{ post.author.user.username }} </a>
@@ -27,26 +28,26 @@
                     <div class="d-flex">
 
                         <!-- Like button -->
+                        <!-- When user IS logged in -->
                         {% if request.user.is_authenticated %}
                             <!-- Check if this user has liked this post -->
-                            {% if post.post_likes.filter:owner=request.user %}
-                            <div id="test"></div>
-                            <div style="cursor: pointer" class="submit-like gray"
-                                 onclick="like('{{ post.id }}')">
-                                <i class="fas fa-heart"></i>
-                            </div>
-{#                            <div style="cursor: pointer" class="submit-like red"#}
-{#                                 onclick="like('{{ post.id }}')">#}
-{#                                <i class="fas fa-heart"></i>#}
-{#                            </div>#}
+                            {% if post.like_id is None %}
+                                <div style="cursor: pointer" class="submit-like gray" id="heart"
+                                     onclick="like('{{ post.id }}')">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                            {% else %}
+                                <div style="cursor: pointer" class="submit-like red" id="heart"
+                                     onclick="like('{{ post.id }}')">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                            {% endif %}
                         {% else %}
-                            <!-- Button trigger modal -->
+                        <!-- When user is NOT logged in -->
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                     data-bs-target="#loginModal">
                                 <i class="fas fa-heart"></i>
                             </button>
-
-                            <!-- Modal -->
                             <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="exampleModalLabel"
                                  aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered">

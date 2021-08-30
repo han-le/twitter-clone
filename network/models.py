@@ -36,6 +36,14 @@ class Post(models.Model):
     class Meta:
         ordering = ['-created_on']
 
+    def serialize(self):
+        return {
+            'author': self.author.user.username,
+            'content': self.content,
+            'created_on': self.created_on.strftime('%I:%M %p, %b %-d %Y'),
+            'like_count': self.likes.all().count()
+        }
+
     def __str__(self):
         return self.content
 

@@ -13,11 +13,17 @@ from .models import User, Post, Follow, Profile, Like
 
 
 def index(request):
-    # SELECT network_post.*, network_like.id
-    # FROM network_post
-    # left join network_like
-    # on network_post.id = network_like.on_post_id
-    posts = Post.objects.all()
+    if request.user.is_authenticated:
+        current_profile_id = request.user.profile.id
+        query = """SELECT network_post.*, network_like.id as like_id
+                        FROM network_post
+                        left join network_like
+                        on network_post.id = network_like.on_post_id
+                        and network_like.owner_id = %s"""
+        posts = Post.objects.raw(query, [current_profile_id])
+    else:
+        posts = Post.objects.all()
+
     posts = paginate(request, posts, 10)
     return render(request, "network/index.html", {'posts': posts})
 
