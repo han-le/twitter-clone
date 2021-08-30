@@ -40,7 +40,7 @@ class Post(models.Model):
         return {
             'author': self.author.user.username,
             'content': self.content,
-            'created_on': self.created_on.strftime('%I:%M %p, %b %-d %Y'),
+            'timestamp': self.created_on.strftime("%b %d %Y, %I:%M %p"),
             'like_count': self.likes.all().count()
         }
 

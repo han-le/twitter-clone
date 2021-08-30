@@ -65,7 +65,6 @@ const like = (post_id) => {
 // Get how many likes a post has
 const getLike = (post_id) => {
     let url = 'like/' + post_id;
-    console.log(url)
     fetch(url)
         .then(response => response.json())
         .then(data => {
@@ -84,4 +83,20 @@ const getLike = (post_id) => {
                 heartColorDiv.className = 'gray';
             }
         })
+}
+
+const getPost = () => {
+    fetch('post/15').then(r => r.json())
+        .then(data => {
+            renderPost(data)
+        })
+}
+
+const renderPost = (post) => {
+    document.getElementById('test-post').innerHTML =
+        `<div>
+            ${post.author} -
+            ${post.content} -
+            ${post.like_count} likes
+        </div>`
 }

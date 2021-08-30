@@ -3,7 +3,11 @@
 
 {% block body %}
     <h1>All posts</h1>
-
+    <button onclick="getPost()">Show a post</button>
+    <div id="test-post"></div>
+    <br>
+    <br>
+    <br>
     {% if request.user.is_authenticated %}
         <div class="make-post-wrap">
             <form id="make-post" onsubmit="submitPost()" method="POST">

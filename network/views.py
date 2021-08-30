@@ -171,9 +171,10 @@ def profile(request, username):
     })
 
 
+# Create a post
 @csrf_protect
 @login_required(login_url='login')
-def post(request):
+def new_post(request):
     if request.method == 'POST':
         '''
         fetch('/post', {
@@ -203,6 +204,19 @@ def post(request):
         return JsonResponse({'error': 'Must be POST request'})
 
     return JsonResponse({"message": "Post successfully."}, status=201)
+
+
+# Get or update a post
+def post(request, post_id):
+    if request.method == 'GET':
+        # Get a specific post
+        current_post = Post.objects.get(id=post_id)
+        return JsonResponse(current_post.serialize(), safe=False)
+    elif request.method == 'PUT':
+        # Update a post
+        pass
+    else:
+        return JsonResponse({'error': 'Wrong method'})
 
 
 def like(request, post_id):

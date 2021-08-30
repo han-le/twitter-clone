@@ -12,7 +12,8 @@ urlpatterns = [
     path('profile/<str:username>', views.profile, name='profile'),  # Profile page
 
     # API Routes
-    path('follow', views.follow, name='follow'),
-    path('post', views.post, name='post'),
-    path('like/<int:post_id>', views.like, name='like')
+    path('follow', views.follow, name='follow'),  # Follow a user
+    path('post', views.new_post, name='new_post'),  # Create a post
+    path('post/<int:post_id>', views.post, name='post'),  # Get or edit a post
+    path('like/<int:post_id>', views.like, name='like')  # Like a post based on id
 ]
