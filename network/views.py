@@ -19,7 +19,9 @@ def index(request):
                         FROM network_post
                         left join network_like
                         on network_post.id = network_like.on_post_id
-                        and network_like.owner_id = %s"""
+                        and network_like.owner_id = %s
+                        ORDER BY network_post.created_on DESC 
+                """
         posts = Post.objects.raw(query, [current_profile_id])
     else:
         posts = Post.objects.all()
@@ -206,12 +208,14 @@ def new_post(request):
     return JsonResponse({"message": "Post successfully."}, status=201)
 
 
-# Get or update a post
+# API: Get or update a post, LOG IN REQUIRED
 def post(request, post_id):
+
     if request.method == 'GET':
-        # Get a specific post
-        current_post = Post.objects.get(id=post_id)
-        return JsonResponse(current_post.serialize(), safe=False)
+        current_post = Post.objects.get(id=post_id)  # Get a specific post
+        current_profile = request.user.profile  # Get the profile logged in
+        return JsonResponse(current_post.serialize(current_profile), safe=False)
+
     elif request.method == 'PUT':
         # Update a post
         pass

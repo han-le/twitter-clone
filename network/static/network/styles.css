@@ -5,3 +5,7 @@
 .gray {
     color: lightgray;
 }
+
+.hidden {
+    display: none;
+}

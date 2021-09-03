@@ -21,19 +21,34 @@
 
     <div class="container">
         {% for post in posts %}
-
             <div class="card mb-3">
                 <div class="card-header">
                     <a href="{% url 'profile' post.author.user.username %}"> {{ post.author.user.username }} </a>
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title"> {{ post.content }} </h5>
+                    <!-- Content -->
+                    <div class="post-content">
+                        <h5 class="card-title" id="content-{{ post.id }}"> {{ post.content }} </h5>
+                    </div>
+
+                    <!-- Edit form. Hidden by default -->
+                    <div id="edit-section-{{ post.id }}" class="hidden">
+                        <form id="edit-form-{{ post.id }}">
+                            <textarea id="edit-content-{{ post.id }}" style="width: 100%"></textarea>
+                            <input type="submit">
+                        </form>
+                    </div>
+
                     <p class="card-text"> Posted on {{ post.created_on }} </p>
                     <div class="d-flex">
 
-                        <!-- Like button -->
                         <!-- When user IS logged in -->
                         {% if request.user.is_authenticated %}
+
+                            <!-- Edit button -->
+                            <button id="editBtn-{{ post.id }}" onclick="editPost('{{ post.id }}')">Edit</button>
+
+                            <!-- Like button -->
                             <div style="cursor: pointer" class="submit-like" onclick="like('{{ post.id }}')">
                                 <!-- Check if this user has liked this post -->
                                 {% if post.like_id is None %}
@@ -46,6 +61,7 @@
                                     </div>
                                 {% endif %}
                             </div>
+
                         {% else %}
                             <!-- When user is NOT logged in -->
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
