@@ -198,8 +198,8 @@ def new_post(request):
             return JsonResponse({'error': 'Content must not be empty'})
 
         # Create a new post
-        new_post = Post(content=content, author=Profile.objects.get(id=author_id))
-        new_post.save()
+        created_post = Post(content=content, author=Profile.objects.get(id=author_id))
+        created_post.save()
 
     # Make a post must be via POST
     else:
@@ -209,16 +209,25 @@ def new_post(request):
 
 
 # API: Get or update a post, LOG IN REQUIRED
+@login_required()
 def post(request, post_id):
-
+    current_profile = request.user.profile  # Get the profile logged in
     if request.method == 'GET':
         current_post = Post.objects.get(id=post_id)  # Get a specific post
-        current_profile = request.user.profile  # Get the profile logged in
         return JsonResponse(current_post.serialize(current_profile), safe=False)
 
-    elif request.method == 'PUT':
-        # Update a post
-        pass
+    elif request.method == 'PUT':  # Update a post
+        # {post_id: ..., content: ..., user: ...}
+        data = json.loads(request.body)  # Get data from request body
+        target_post = Post.objects.get(id=data['post_id'])  # Get the post needed to update
+        # Block editing if user is not the post's author
+        if current_profile != target_post.author:
+            return JsonResponse({'message': 'You are not allowed to edit this post'}, status=403)
+
+        target_post.content = data['content']  # Update the content
+        target_post.save()
+        return JsonResponse({"message": "Post was updated successfully"}, status=201)
+
     else:
         return JsonResponse({'error': 'Wrong method'})
 

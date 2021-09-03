@@ -30,10 +30,11 @@ const submitPost = () => {
             content: content,
             author_id: author_id
         })
-    }).then(r => r.json()).then(function () {
-        console.log('Post is created!');
     })
-
+        .then(r => r.json())
+        .then(function () {
+            console.log('Post is created!');
+        })
 }
 
 // Let user like or unlike a post
@@ -83,8 +84,9 @@ const getLike = (post_id) => {
         })
 }
 
-const getPost = () => {
-    fetch('post/15').then(r => r.json())
+const getPost = (post_id) => {
+    fetch('post/' + post_id)
+        .then(r => r.json())
         .then(data => {
             renderPost(data)
         })
@@ -105,7 +107,8 @@ const renderPost = (post) => {
         editDiv = `<button id="edit-${post.id}">Edit</button>`
     }
 
-    document.getElementById('test-post').innerHTML =
+    let postContainerId = 'post-container-' + post.id;
+    document.getElementById(postContainerId).innerHTML =
         `<div>
             <div class="card mb-3">
                 <div class="card-header">
@@ -141,20 +144,57 @@ const editPost = (post_id) => {
     // Show edit form + Hide content section
     let editDiv = document.getElementById('edit-section-' + post_id);
     let contentDiv = document.getElementById('content-' + post_id);
+    let originalContent = contentDiv.innerHTML;
     let editForm = document.getElementById('edit-form-' + post_id);
     let editTextarea = editForm.elements[0];
 
-    editTextarea.value = contentDiv.innerHTML;
+    editTextarea.value = originalContent;
     editDiv.style.display = 'block';
     contentDiv.style.display = 'none';
 
     // Attach submit event for edit form
     editForm.onsubmit = function () {
-        submitEditPost(post_id, editTextarea)
+        // Validate data:
+        let updatedContent = editTextarea.value;
+        // 1 - Trim all white spaces
+        updatedContent = updatedContent.trim();
+        // 2 - Content can not be empty and must be different than original
+        if (updatedContent !== '' && updatedContent !== originalContent) {
+            submitEditPost(post_id, updatedContent, editDiv, contentDiv)
+        }
         return false;
     }
 }
 
-const submitEditPost = (post_id, inputTag) => {
-    let editContent = inputTag.value;
+const submitEditPost = (post_id, updatedContent, editView, contentView) => {
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const request = new Request(
+        '/post/' + post_id,
+        {headers: {'X-CSRFToken': csrftoken}}
+    );
+
+    fetch(request, {
+        method: 'PUT',
+        mode: 'same-origin',
+        body: JSON.stringify({
+            post_id: post_id,
+            content: updatedContent,
+        })
+    })
+        .then(function (response) {
+            if (response.status === 403) {
+                console.log('You can not edit someone else post');
+                return;
+            }
+            response.json()
+            .then(function (message) {
+                console.log(message);
+                // Update the content of the post on view
+                contentView.innerHTML = updatedContent;
+                contentView.style.display = 'block';  // Show the post content again
+                editView.style.display = 'none';  // Hide the edit form
+            })
+        })
+
 }

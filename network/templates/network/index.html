@@ -3,7 +3,7 @@
 
 {% block body %}
     <h1>All posts</h1>
-    <button onclick="getPost()">Show a post</button>
+    <button onclick="getPost('15')">Show a post</button>
     <div id="test-post"></div>
     <br>
     <br>
@@ -21,14 +21,15 @@
 
     <div class="container">
         {% for post in posts %}
-            <div class="card mb-3">
-                <div class="card-header">
+            <div id="post-container-{{ post.id }}">
+                <div class="card mb-3">
+                    <div class="card-header">
                     <a href="{% url 'profile' post.author.user.username %}"> {{ post.author.user.username }} </a>
                 </div>
-                <div class="card-body">
+                    <div class="card-body">
                     <!-- Content -->
                     <div class="post-content">
-                        <h5 class="card-title" id="content-{{ post.id }}"> {{ post.content }} </h5>
+                        <h5 class="card-title" id="content-{{ post.id }}">{{ post.content }}</h5>
                     </div>
 
                     <!-- Edit form. Hidden by default -->
@@ -89,6 +90,7 @@
                         <!-- Like count -->
                         <div class="ms-2" id="like-{{ post.id }}">{{ post.likes.all.count }}</div>
                     </div>
+                </div>
                 </div>
             </div>
         {% endfor %}
