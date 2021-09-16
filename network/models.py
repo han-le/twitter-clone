@@ -19,6 +19,17 @@ class Profile(models.Model):
         related_name='all_followers'
     )
 
+    def serialize(self, follow_status):
+        return {
+            'id': self.id,
+            'username': self.user.username,
+            'bio': self.bio,
+            'avatar': self.avatar,
+            'following': self.all_following.count(),
+            'followers': self.followers.count(),
+            'follow_status': follow_status
+        }
+
 
 class Follow(models.Model):
     from_user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='following')
@@ -40,6 +51,7 @@ class Post(models.Model):
         return {
             'id': self.id,
             'author': self.author.user.username,
+            'avatar': self.author.avatar,
             'content': self.content,
             'timestamp': self.created_on.strftime("%b %d %Y, %I:%M %p"),
             'like_count': self.likes.count(),

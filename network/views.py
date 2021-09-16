@@ -14,33 +14,28 @@ from .models import User, Post, Follow, Profile, Like
 
 def index(request):
     if request.user.is_authenticated:
-        current_profile_id = request.user.profile.id
-        query = """SELECT network_post.*, network_like.id as like_id
-                        FROM network_post
-                        left join network_like
-                        on network_post.id = network_like.on_post_id
-                        and network_like.owner_id = %s
-                        ORDER BY network_post.created_on DESC 
-                """
-        posts = Post.objects.raw(query, [current_profile_id])
+        return render(request, "network/index.html")
     else:
-        posts = Post.objects.all()
-
-    posts = paginate(request, posts, 10)
-    return render(request, "network/index.html", {'posts': posts})
+        return render(request, 'network/login.html')
 
 
-@login_required(login_url='login')
-def following_posts(request):
-    user = request.user
-    # Profile of this user
-    current_profile = user.profile
-    # Profile this user follows
-    following_profiles = current_profile.all_following.all()
-    # All posts created by this user
-    posts = Post.objects.filter(author__in=following_profiles)
-    posts = paginate(request, posts, 5)
-    return render(request, 'network/following.html', {'posts': posts})
+@login_required()
+def load_posts(request, post_type):
+    current_profile = request.user.profile
+    if post_type == 'all':
+        all_posts = Post.objects.all()
+    elif post_type == 'following':
+        following_profiles = current_profile.all_following.all()  # ALL Profiles this user follows
+        all_posts = Post.objects.filter(author__in=following_profiles)  # All posts created by this user
+    elif post_type == 'me':
+        user_being_viewed = User.objects.get(username=request.user)
+        profile_being_viewed = user_being_viewed.profile
+        all_posts = profile_being_viewed.created_posts.all()
+    else:
+        user_being_viewed = User.objects.get(username=post_type)
+        profile_being_viewed = user_being_viewed.profile
+        all_posts = profile_being_viewed.created_posts.all()
+    return JsonResponse([item.serialize(current_profile) for item in all_posts], safe=False)
 
 
 def paginate(request, posts, post_each_page):
@@ -155,22 +150,15 @@ def follow(request):
 
 
 def profile(request, username):
-    user_being_viewed = User.objects.get(username=username)
-    profile_being_viewed = user_being_viewed.profile
-    all_posts = profile_being_viewed.created_posts.all()
-    follow_status = False
+    target_profile = User.objects.get(username=username).profile
 
+    follow_status = False
     if request.user.is_authenticated:
         # Check if the logged in user has followed the profile he/her is viewing yet?
-        follow_relationship = Follow.objects.filter(from_user=request.user.profile).filter(to_user=profile_being_viewed)
+        follow_relationship = Follow.objects.filter(from_user=request.user.profile).filter(to_user=target_profile)
         if len(follow_relationship) > 0:
             follow_status = True
-
-    return render(request, 'network/profile.html', {
-        'profile': profile_being_viewed,
-        'created_posts': all_posts,
-        'follow_status': follow_status
-    })
+    return JsonResponse(target_profile.serialize(follow_status))
 
 
 # Create a post
@@ -263,12 +251,18 @@ def like(request, post_id):
         if len(liked_this_post) > 0:
             # Delete the like
             liked_this_post.delete()
-            return JsonResponse({'message': 'Unlike successfully'})
+            return JsonResponse({'message': 'unlike'})
         else:
             # Make a new like
             on_post = Post.objects.get(id=post_id)
             new_like = Like(on_post=on_post, owner=from_profile)
             new_like.save()
-            return JsonResponse({'message': 'Like successfully'})
+            return JsonResponse({'message': 'like'})
     else:
         return JsonResponse({'error': 'Wrong method'})
+
+
+def test(request):
+    return render(request, 'network/test.html')
+
+
